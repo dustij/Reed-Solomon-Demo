@@ -2,18 +2,25 @@ Run app.jar located in target/dist/
 
 To do list
 
-[ ] Polynomial labels with not show anything until Encode is clicked, then it will fill in coeffecients accordingly
+[x] Polynomial labels with not show anything until Encode is clicked, then it will fill in coeffecients accordingly
 [ ] Restrict the message text field to 12 characters
 [x] Replace spinners with custom hex spinners
-[ ] Clicking Encode will also populate the hex spinners the same time polynomial labels are generated
-[ ] Change color for spinners that are modified by the user
+[x] Clicking Encode will also populate the hex spinners the same time polynomial labels are generated
+[x] Change color for spinners that are modified by the user
 [ ] Ensure formatting and spacing looks nice (spinners are same width, spacing and padding, etc.)
 [ ] Add the last section on decoding
+[ ] Allow message any size between 1 and 12 (currently only works with exactly 12)
+[ ] add powers to p(x)
+[ ] move decode up
+[ ] move hex spinners up (polynomial explanations at bottom)
 
-questions
-
-I guess I'm still a little confused about how the polynomial looks after dividing by the generator function.
-If the syndromes are 0, will the final polynomial still hold 0's in the last 8 places?
-My understand is that it won't. After dividing by g(x) the new polynomial will look different.
-If thats the case, if there is no corruption then will the message symbols be the original data, or is 
-it still encoded, and need decoding before getting the original data?
+notes
+synd evaluated at (chosen for a reason, error location math will work)
+2^0=1
+2^1=2
+2^2=4
+2^3=8
+2^4=10 (dec 16) 
+2^5=20 (dec 32)
+2^6=40
+2^7=80

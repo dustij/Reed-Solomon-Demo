@@ -10,10 +10,14 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.DocumentFilter;
+import java.awt.*;
 import java.awt.event.*;
 import java.text.ParseException;
 
 public class HexSpinner extends JSpinner {
+  private int initialValue;
+  private Color initColor;
+
   public HexSpinner() {
     // Wrap around spinner model
     super(new SpinnerNumberModel(0, 0, 0xff, 0x1) {
@@ -36,6 +40,13 @@ public class HexSpinner extends JSpinner {
 
     var textField = getEditorTextField();
     configureTextFieldForHexInput(textField);
+
+    // Store initial value
+    initialValue = (int) getValue();
+    initColor = Color.WHITE;
+
+    // Detect user changes and update color
+    addChangeListener(_ -> updateSpinnerColor());
 
     // Select text on focus
     textField.addFocusListener(new FocusAdapter() {
@@ -60,15 +71,36 @@ public class HexSpinner extends JSpinner {
     });
   }
 
+  public void setInitialColor(Color color) {
+    JFormattedTextField textField = getEditorTextField();
+    initColor = color;
+    textField.setBackground(initColor);
+  }
+
+  public void setInitialValue(int value) {
+    initialValue = value;
+    setValue(value);
+    setBackground(initColor); // Reset color when new value is set
+  }
+
+  private void updateSpinnerColor() {
+    int currentValue = (int) getValue();
+    JFormattedTextField textField = getEditorTextField();
+
+    if (currentValue != initialValue) {
+      textField.setBackground(new Color(255, 255, 200)); // Change color if modified
+    } else {
+      textField.setBackground(initColor); // Reset if it matches original
+    }
+  }
+
   protected JFormattedTextField getEditorTextField() {
     return ((JSpinner.DefaultEditor) getEditor()).getTextField();
   }
 
   protected int parseHexByte(String hexString) throws NumberFormatException {
     int value = Integer.parseInt(hexString, 16);
-    if (value < 0 || value > 0xFF) {
-      throw new NumberFormatException("Out of range");
-    }
+    if (value < 0 || value > 0xFF) { throw new NumberFormatException("Out of range"); }
     return value;
   }
 
@@ -111,12 +143,18 @@ public class HexSpinner extends JSpinner {
             }
           }
 
+          // @Override
+          // public String valueToString(Object value) {
+          // if (value instanceof Number) { return Integer.toHexString(((Number)
+          // value).intValue()).toUpperCase(); }
+          // return "0";
+          // }
+
+          // Pad with leading 0
           @Override
           public String valueToString(Object value) {
-            if (value instanceof Number) {
-              return Integer.toHexString(((Number) value).intValue()).toUpperCase();
-            }
-            return "0";
+            if (value instanceof Number) { return String.format("%02X", ((Number) value).intValue()); }
+            return "00";
           }
         }));
   }

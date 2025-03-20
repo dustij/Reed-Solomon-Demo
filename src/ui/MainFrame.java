@@ -1,222 +1,591 @@
 package ui;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import rs.RS5;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
     private HexSpinner[] messageSpinners = new HexSpinner[12];
     private HexSpinner[] paritySpinners = new HexSpinner[8];
     private JTextField messageTextField;
-    private JLabel initialPolyLabel;
-    private JLabel remainderPolyLabel;
-    private JLabel messagePolyLabel;
+    private JLabel pxLabel;
+    private JLabel gxLabel;
+    private JLabel mxLabel;
+    private JLabel msgLabel;
+    private JLabel syndLabel;
+    private JLabel exLabel;
+    private JLabel ePosLabel;
+    private JLabel eMagLabel;
+    private JLabel msgCorrLabel;
+    private final String pxEmpty = "<html>P(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String gxEmpty = "<html>P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String mxEmpty = "<html>M(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String syndEmpty = "Syndromes =";
+    private final String exEmpty = "<html>e(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&thinsp;=</html>";
+    private final String ePosEmpty = "<html>ePos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String eMagEmpty = "<html>eMag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String msgEmpty = "Message     =";
+    private final String msgCorrEmpty = "<html>Corrected&nbsp;&nbsp;&nbsp;=</html>";
+    private RS5 rs;
+    private int[] msgIn;
+    private int[] msgOut1;
+    private int[] msgOut2;
+    private int[] synd;
 
     public MainFrame() {
         super("Reed-Solomon Code");
 
+        rs = new RS5();
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(new EmptyBorder(50, 0, 50, 0));
         add(mainPanel);
 
-        // Enter message
-        JPanel titlePanel = new JPanel();
-        mainPanel.add(titlePanel);
+        JLabel titleLabel = new JLabel("Enter a message (Up to 12 characters)");
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(titleLabel);
 
-        titlePanel.add(new JLabel("Enter a message, then click Encode. (Up to 12 characters)"));
-
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        mainPanel.add(topPanel);
-
-        JPanel messagePanel = new JPanel();
-        topPanel.add(messagePanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
         messageTextField = new JTextField(12);
-        messageTextField.setMaximumSize(getPreferredSize());
-        topPanel.add(messageTextField);
+        messageTextField.setDocument(new JTextFieldLimit(12));
+        messageTextField.setMaximumSize(messageTextField.getPreferredSize());
+        messageTextField.setAlignmentY(Component.TOP_ALIGNMENT);
+        mainPanel.add(messageTextField);
 
         JPanel buttonPanel = new JPanel();
-        topPanel.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel);
 
         JButton encodeButton = new JButton("Encode");
         encodeButton.addActionListener(_ -> handleEncodePressed());
         buttonPanel.add(encodeButton);
 
-        // I feel the decode button belongs after the user introduces errors (below hex spinners)
-        // JButton decodeButton = new JButton("Decode");
-        // buttonPanel.add(decodeButton);
+        JButton decodeButton = new JButton("Decode");
+        decodeButton.addActionListener(_ -> handleDecodePressed());
+        buttonPanel.add(decodeButton);
 
-        JButton resetButton = new JButton("Reset");
+        JButton resetButton = new JButton("  Reset  ");
         resetButton.addActionListener(_ -> handleResetPressed());
         buttonPanel.add(resetButton);
 
-        mainPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(2, 1));
-        mainPanel.add(centerPanel);
+        JPanel spinnersPanel1 = new JPanel();
+        spinnersPanel1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        spinnersPanel1.setBorder(new EmptyBorder(0, 50, 0, 50));
+        mainPanel.add(spinnersPanel1);
 
-        JPanel polynomialPanel = new JPanel();
-        polynomialPanel.setLayout(new BoxLayout(polynomialPanel, BoxLayout.Y_AXIS));
-        centerPanel.add(polynomialPanel);
+        JPanel spinnersPanel2 = new JPanel();
+        spinnersPanel2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        mainPanel.add(spinnersPanel2);
 
-        initialPolyLabel = new JLabel("<html>P(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =</html>");
-        polynomialPanel.add(initialPolyLabel);
-
-        remainderPolyLabel = new JLabel("P(x)/g(x) =");
-        polynomialPanel.add(remainderPolyLabel);
-
-        messagePolyLabel = new JLabel("<html>M(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =</html>");
-        polynomialPanel.add(messagePolyLabel);
-
-        JPanel introErrorsPanel = new JPanel();
-        introErrorsPanel.setLayout(new BoxLayout(introErrorsPanel, BoxLayout.Y_AXIS));
-        centerPanel.add(introErrorsPanel);
-
-        JPanel instructPanel = new JPanel();
-        introErrorsPanel.add(instructPanel);
-
-        JLabel instructLabel = new JLabel("Introduce errors, then click Decode. (Up to 4 errors)");
-        instructPanel.add(instructLabel);
-
-        JPanel spinnersPanel = new JPanel();
-        spinnersPanel.setLayout(new BoxLayout(spinnersPanel, BoxLayout.X_AXIS));
-        introErrorsPanel.add(spinnersPanel);
-
-        JPanel spinnersLabelPanel = new JPanel();
-        spinnersLabelPanel.setLayout(new BoxLayout(spinnersLabelPanel, BoxLayout.Y_AXIS));
-        spinnersPanel.add(spinnersLabelPanel);
-
-        JPanel spinnersWidgetPanel = new JPanel();
-        spinnersWidgetPanel.setLayout(new BoxLayout(spinnersWidgetPanel, BoxLayout.Y_AXIS));
-        spinnersPanel.add(spinnersWidgetPanel);
-
-        JLabel msgSymbolsLabel = new JLabel("Message symbols:");
-        spinnersLabelPanel.add(msgSymbolsLabel);
-
-        JLabel ptySymbolsLabel = new JLabel("Parity symbols:");
-        spinnersLabelPanel.add(ptySymbolsLabel);
-
-        JPanel msgSpinnersPanel = new JPanel();
-        msgSpinnersPanel.setLayout(new GridLayout(1, 12));
-        spinnersWidgetPanel.add(msgSpinnersPanel);
-
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 10; i++) {
             messageSpinners[i] = new HexSpinner();
-            msgSpinnersPanel.add(messageSpinners[i]);
+            spinnersPanel1.add(messageSpinners[i]);
+            // spinnersPanel1.add(new JLabel("x"));
+            // if (i < 9)
+            // spinnersPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
         }
 
-        JPanel ptySpinnersPanel = new JPanel();
-        ptySpinnersPanel.setLayout(new GridLayout(1, 12));
-        spinnersWidgetPanel.add(ptySpinnersPanel);
+        for (int i = 10; i < 12; i++) {
+            messageSpinners[i] = new HexSpinner();
+            spinnersPanel2.add(messageSpinners[i]);
+            // spinnersPanel2.add(new JLabel("x"));
+            // spinnersPanel2.add(Box.createRigidArea(new Dimension(5, 0)));
+        }
 
         for (int i = 0; i < 8; i++) {
             paritySpinners[i] = new HexSpinner();
-            ptySpinnersPanel.add(paritySpinners[i]);
+            paritySpinners[i].setInitialColor(new Color(225, 255, 255));
+            spinnersPanel2.add(paritySpinners[i]);
+            // spinnersPanel2.add(new JLabel("x"));
+            // if (i < 7)
+            // spinnersPanel2.add(Box.createRigidArea(new Dimension(5, 0)));
         }
 
-        JPanel decodeButtonPanel = new JPanel();
-        introErrorsPanel.add(decodeButtonPanel);
-
-        JButton decodeButton = new JButton("Decode");
-        decodeButtonPanel.add(decodeButton);
-
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 28)));
         mainPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 28)));
 
-        // TODO: Show the decoding stuff
+        // Wrapper panel to force left alignment
+        JPanel bottomWrapper = new JPanel(new BorderLayout());
+        // bottomWrapper.setBackground(Color.BLACK);
+        bottomWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        bottomWrapper.setBorder(new EmptyBorder(0, 50, 0, 50));
 
         JPanel bottomPanel = new JPanel();
-        mainPanel.add(bottomPanel);
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        bottomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        // Add bottomPanel to the left of the wrapper
+        bottomWrapper.add(bottomPanel, BorderLayout.WEST);
+        mainPanel.add(bottomWrapper);
+
+        // JPanel bottomPanel = new JPanel();
+        // bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        // bottomPanel.setBorder(new EmptyBorder(0, 50, 0, 50));
+        // bottomPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+        // bottomPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        // bottomPanel.setBackground(Color.BLACK);
+        // mainPanel.add(bottomPanel);
+
+
+        pxLabel = new JLabel(pxEmpty);
+        gxLabel = new JLabel(gxEmpty);
+        mxLabel = new JLabel(mxEmpty);
+        syndLabel = new JLabel(syndEmpty);
+        exLabel = new JLabel(exEmpty);
+        ePosLabel = new JLabel(ePosEmpty);
+        eMagLabel = new JLabel(eMagEmpty);
+        msgLabel = new JLabel(msgEmpty);
+        msgCorrLabel = new JLabel(msgCorrEmpty);
+
+        pxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        gxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        mxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        syndLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        exLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        ePosLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        eMagLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        msgLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        msgCorrLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+
+        Dimension labelSize = new Dimension(1000, 28);
+
+        pxLabel.setPreferredSize(labelSize);
+        pxLabel.setMaximumSize(labelSize);
+        pxLabel.setMinimumSize(labelSize);
+
+        gxLabel.setPreferredSize(labelSize);
+        gxLabel.setMaximumSize(labelSize);
+        gxLabel.setMinimumSize(labelSize);
+
+        mxLabel.setPreferredSize(labelSize);
+        mxLabel.setMaximumSize(labelSize);
+        mxLabel.setMinimumSize(labelSize);
+
+        syndLabel.setMinimumSize(labelSize);
+        syndLabel.setPreferredSize(labelSize);
+        syndLabel.setMaximumSize(labelSize);
+
+        exLabel.setPreferredSize(labelSize);
+        exLabel.setMaximumSize(labelSize);
+        exLabel.setMinimumSize(labelSize);
+
+        ePosLabel.setPreferredSize(labelSize);
+        ePosLabel.setMaximumSize(labelSize);
+        ePosLabel.setMinimumSize(labelSize);
+
+        eMagLabel.setPreferredSize(labelSize);
+        eMagLabel.setMaximumSize(labelSize);
+        eMagLabel.setMinimumSize(labelSize);
+
+        msgLabel.setMinimumSize(labelSize);
+        msgLabel.setPreferredSize(labelSize);
+        msgLabel.setMaximumSize(labelSize);
+
+        msgCorrLabel.setPreferredSize(labelSize);
+        msgCorrLabel.setMaximumSize(labelSize);
+        msgCorrLabel.setMinimumSize(labelSize);
+
+        bottomPanel.add(pxLabel);
+        bottomPanel.add(gxLabel);
+        bottomPanel.add(mxLabel);
+        bottomPanel.add(syndLabel);
+        bottomPanel.add(exLabel);
+        bottomPanel.add(ePosLabel);
+        bottomPanel.add(eMagLabel);
+        bottomPanel.add(msgLabel);
+        bottomPanel.add(msgCorrLabel);
+
+
+        // JPanel spacerPanel = new JPanel();
+        // spacerPanel.setLayout(new BoxLayout(spacerPanel, BoxLayout.Y_AXIS));
+        // spacerPanel.setMaximumSize(new Dimension(1, Integer.MAX_VALUE));
+        // mainPanel.add(spacerPanel);
+
+        // JPanel centerPanel = new JPanel();
+        // centerPanel.setLayout(new GridLayout(2, 1));
+        // mainPanel.add(centerPanel);
+
+        // JPanel polynomialPanel = new JPanel();
+        // polynomialPanel.setLayout(new BoxLayout(polynomialPanel, BoxLayout.Y_AXIS));
+        // centerPanel.add(polynomialPanel);
+
+        // Inner panel to hold labels and align them vertically
+        // JPanel labelsPanel = new JPanel();
+        // labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS)); // Stack labels
+        // polynomialPanel.add(labelsPanel);
+
+        // labelsPanel.add(Box.createVerticalGlue());
+
+        // initialPolyLabel = new JLabel("<html>P(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =</html>");
+        // labelsPanel.add(initialPolyLabel);
+
+        // remainderPolyLabel = new JLabel("P(x)/g(x) =");
+        // labelsPanel.add(remainderPolyLabel);
+
+        // messagePolyLabel = new JLabel("<html>M(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =</html>");
+        // labelsPanel.add(messagePolyLabel);
+
+        // labelsPanel.add(Box.createVerticalGlue());
+
+        // JPanel introErrorsPanel = new JPanel();
+        // introErrorsPanel.setLayout(new BoxLayout(introErrorsPanel, BoxLayout.Y_AXIS));
+        // centerPanel.add(introErrorsPanel);
+
+        // JPanel instructPanel = new JPanel();
+        // introErrorsPanel.add(instructPanel);
+
+        // JLabel instructLabel = new JLabel("Introduce errors, then click Decode. (Up to 4 errors)");
+        // instructPanel.add(instructLabel);
+
+        // JPanel spinnersPanel = new JPanel();
+        // spinnersPanel.setLayout(new BoxLayout(spinnersPanel, BoxLayout.X_AXIS));
+        // introErrorsPanel.add(spinnersPanel);
+
+        // JPanel spinnersLabelPanel = new JPanel();
+        // spinnersLabelPanel.setLayout(new BoxLayout(spinnersLabelPanel, BoxLayout.Y_AXIS));
+        // spinnersPanel.add(spinnersLabelPanel);
+
+        // JPanel spinnersWidgetPanel = new JPanel();
+        // spinnersWidgetPanel.setLayout(new BoxLayout(spinnersWidgetPanel, BoxLayout.Y_AXIS));
+        // spinnersPanel.add(spinnersWidgetPanel);
+
+        // JLabel msgSymbolsLabel = new JLabel("Message symbols:");
+        // spinnersLabelPanel.add(msgSymbolsLabel);
+
+        // JLabel ptySymbolsLabel = new JLabel("Parity symbols:");
+        // spinnersLabelPanel.add(ptySymbolsLabel);
+
+        // JPanel msgSpinnersPanel = new JPanel();
+        // msgSpinnersPanel.setLayout(new GridLayout(1, 12));
+        // spinnersWidgetPanel.add(msgSpinnersPanel);
+
+        // for (int i = 0; i < 10; i++) {
+        // messageSpinners[i] = new HexSpinner();
+        // msgSpinnersPanel.add(messageSpinners[i]);
+        // }
+
+        // JPanel ptySpinnersPanel = new JPanel();
+        // ptySpinnersPanel.setLayout(new GridLayout(1, 12));
+        // spinnersWidgetPanel.add(ptySpinnersPanel);
+
+        // for (int i = 10; i < 12; i++) {
+        // messageSpinners[i] = new HexSpinner();
+        // ptySpinnersPanel.add(messageSpinners[i]);
+        // }
+
+        // for (int i = 0; i < 8; i++) {
+        // paritySpinners[i] = new HexSpinner();
+        // paritySpinners[i].setInitialColor(new Color(225, 255, 255));
+        // ptySpinnersPanel.add(paritySpinners[i]);
+        // }
+
+
+
+        // JPanel syndromesPanel = new JPanel();
+        // syndromesPanel.setLayout(new GridLayout(1, 1));
+        // bottomPanel.add(syndromesPanel);
+
+        // syndromesLabel = new JLabel("Syndromes = ");
+        // syndromesPanel.add(syndromesLabel);
 
         // mainPanel.add(Box.createVerticalGlue());
 
+        mainPanel.add(Box.createRigidArea(new Dimension(1100, 0)));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        // setSize(850, 600);
-        pack();
+        setSize(1100, 650);
+        // pack();
+        setMinimumSize(getPreferredSize());
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
     private void handleEncodePressed() {
-        initialPolyLabel.setText("""
+        resetDecodingLabels();
+
+        String text = messageTextField.getText();
+        msgIn = text.chars().toArray();
+        int[] zeros = new int[12];
+
+        for (int i = 0; i < Math.min(text.length(), 12); i++) {
+            zeros[i] = msgIn[i];
+        }
+        msgIn = zeros;
+
+        // if (msgIn.length == 0 || msgIn.length > 12) {
+        // JOptionPane.showMessageDialog(null, "Message should be greater than 0 and less than 13 characters
+        // long.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        // return;
+        // }
+        System.out.print("msgIn = ");
+        rs.printArray(msgIn);
+
+        msgOut1 = rs.encodeMsg(msgIn, 8);
+        System.out.print("msgOut = ");
+        rs.printArray(msgOut1);
+
+        pxLabel.setText("""
                 <html>
-                P(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
-                1x<sup>13</sup>+
-                1x<sup>12</sup>+
-                1x<sup>11</sup>+
-                1x<sup>10</sup>+
-                1x<sup>F</sup>+
-                1x<sup>E</sup>+
-                1x<sup>D</sup>+
-                1x<sup>C</sup>+
-                1x<sup>B</sup>+
-                1x<sup>A</sup>+
-                1x<sup>9</sup>+
-                1x<sup>8</sup>+
-                0+
-                0+
-                0+
-                0+
-                0+
-                0+
-                0+
+                P(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+                %02Xx<sup>13</sup>+
+                %02Xx<sup>12</sup>+
+                %02Xx<sup>11</sup>+
+                %02Xx<sup>10</sup>+
+                %02Xx<sup>F</sup>+
+                %02Xx<sup>E</sup>+
+                %02Xx<sup>D</sup>+
+                %02Xx<sup>C</sup>+
+                %02Xx<sup>B</sup>+
+                %02Xx<sup>A</sup>+
+                %02Xx<sup>9</sup>+
+                %02Xx<sup>8</sup>+
+                0x<sup>7</sup>+
+                0x<sup>6</sup>+
+                0x<sup>5</sup>+
+                0x<sup>4</sup>+
+                0x<sup>3</sup>+
+                0x<sup>2</sup>+
+                0x+
                 0
-                </html>""");
+                </html>""".formatted(
+                msgOut1[0],
+                msgOut1[1],
+                msgOut1[2],
+                msgOut1[3],
+                msgOut1[4],
+                msgOut1[5],
+                msgOut1[6],
+                msgOut1[7],
+                msgOut1[8],
+                msgOut1[9],
+                msgOut1[10],
+                msgOut1[11]));
 
-        remainderPolyLabel.setText("""
+        gxLabel.setText("""
                 <html>
-                P(x)/g(x) =
-                1x<sup>7</sup>+
-                1x<sup>6</sup>+
-                1x<sup>5</sup>+
-                1x<sup>4</sup>+
-                1x<sup>3</sup>+
-                1x<sup>2</sup>+
-                1x+
-                1
+                P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=
+                %Xx<sup>7</sup>+
+                %Xx<sup>6</sup>+
+                %Xx<sup>5</sup>+
+                %Xx<sup>4</sup>+
+                %Xx<sup>3</sup>+
+                %Xx<sup>2</sup>+
+                %Xx+
+                %X
                 </html>
-                """);
+                """.formatted(
+                msgOut1[12],
+                msgOut1[13],
+                msgOut1[14],
+                msgOut1[15],
+                msgOut1[16],
+                msgOut1[17],
+                msgOut1[18],
+                msgOut1[19]));
 
-        messagePolyLabel.setText("""
+        mxLabel.setText("""
                 <html>
-                M(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
-                1x<sup>13</sup>+
-                1x<sup>12</sup>+
-                1x<sup>11</sup>+
-                1x<sup>10</sup>+
-                1x<sup>F</sup>+
-                1x<sup>E</sup>+
-                1x<sup>D</sup>+
-                1x<sup>C</sup>+
-                1x<sup>B</sup>+
-                1x<sup>A</sup>+
-                1x<sup>9</sup>+
-                1x<sup>8</sup>+
-                1x<sup>7</sup>+
-                1x<sup>6</sup>+
-                1x<sup>5</sup>+
-                1x<sup>4</sup>+
-                1x<sup>3</sup>+
-                1x<sup>2</sup>+
-                1x+
-                1
-                </html>""");
+                M(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+                %02Xx<sup>13</sup>+
+                %02Xx<sup>12</sup>+
+                %02Xx<sup>11</sup>+
+                %02Xx<sup>10</sup>+
+                %02Xx<sup>F</sup>+
+                %02Xx<sup>E</sup>+
+                %02Xx<sup>D</sup>+
+                %02Xx<sup>C</sup>+
+                %02Xx<sup>B</sup>+
+                %02Xx<sup>A</sup>+
+                %02Xx<sup>9</sup>+
+                %02Xx<sup>8</sup>+
+                %02Xx<sup>7</sup>+
+                %02Xx<sup>6</sup>+
+                %02Xx<sup>5</sup>+
+                %02Xx<sup>4</sup>+
+                %02Xx<sup>3</sup>+
+                %02Xx<sup>2</sup>+
+                %02Xx+
+                %02X
+                </html>""".formatted(
+                msgOut1[0],
+                msgOut1[1],
+                msgOut1[2],
+                msgOut1[3],
+                msgOut1[4],
+                msgOut1[5],
+                msgOut1[6],
+                msgOut1[7],
+                msgOut1[8],
+                msgOut1[9],
+                msgOut1[10],
+                msgOut1[11],
+                msgOut1[12],
+                msgOut1[13],
+                msgOut1[14],
+                msgOut1[15],
+                msgOut1[16],
+                msgOut1[17],
+                msgOut1[18],
+                msgOut1[19]));
+
+        int startingIndex = 12 - msgIn.length;
+
+        for (int i = 0; i < msgIn.length; i++) {
+            messageSpinners[startingIndex + i].setInitialValue(msgOut1[i]);
+        }
+
+        startingIndex = msgIn.length;
+        for (int i = 0; i < 8; i++) {
+            paritySpinners[i].setInitialValue(msgOut1[startingIndex + i]);
+        }
+
+        setSyndromes();
     }
 
     private void handleResetPressed() {
         messageTextField.setText("");
+        msgIn = new int[0];
+        msgOut1 = new int[0];
+        msgOut2 = new int[0];
+        synd = new int[0];
 
         for (HexSpinner spinner : messageSpinners) {
-            spinner.setValue(0);
+            spinner.setInitialValue(0);
         }
 
         for (HexSpinner spinner : paritySpinners) {
-            spinner.setValue(0);
+            spinner.setInitialValue(0);
         }
 
-        initialPolyLabel.setText("<html>P(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =</html>");
-        remainderPolyLabel.setText("P(x)/g(x) =");
-        messagePolyLabel.setText("<html>M(x) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =</html>");
+        pxLabel.setText(pxEmpty);
+        gxLabel.setText(gxEmpty);
+        mxLabel.setText(mxEmpty);
+        syndLabel.setText(syndEmpty);
+
+        resetDecodingLabels();
     }
+
+    private void resetDecodingLabels() {
+        exLabel.setText(exEmpty);
+        ePosLabel.setText(ePosEmpty);
+        eMagLabel.setText(eMagEmpty);
+        msgLabel.setText(msgEmpty);
+        msgCorrLabel.setText(msgCorrEmpty);
+    }
+
+    private void handleDecodePressed() {
+        setSyndromes();
+
+        int[] eLoc = rs.findErrorLocator(synd, 8);
+
+        // if (eLoc.length > 5) {
+        // JOptionPane.showMessageDialog(this, "Too many errors to correct.", "Too Many Errors",
+        // JOptionPane.WARNING_MESSAGE);
+        // return;
+        // }
+
+        System.out.print("eLoc = ");
+        rs.printArray(eLoc);
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < eLoc.length; i++) {
+            sb.append("%02X".formatted(eLoc[i]));
+            if (i < eLoc.length - 1) {
+                sb.append("x");
+                if (i < eLoc.length - 2) {
+                    sb.append("<sup>").append(eLoc.length - i - 1).append("</sup>");
+                }
+                sb.append(" + ");
+            }
+        }
+
+        String exText = exEmpty.substring(0, exEmpty.length() - 7) + " " + sb.toString() + "</html>";
+        exLabel.setText(exText);
+
+        int[] eLoc2 = new int[eLoc.length];
+        for (int j = 0; j < eLoc.length; j++)
+            eLoc2[eLoc.length - 1 - j] = eLoc[j];
+
+        int[] ePos = rs.findErrorPositions(eLoc2, 20);
+        System.out.print("ePos = ");
+        rs.printArray(ePos);
+
+        sb.delete(0, sb.length());
+        for (int i = 0; i < ePos.length; i++) {
+            sb.append("%02X ".formatted(ePos[i]));
+        }
+
+        String ePosText = ePosEmpty.substring(0, ePosEmpty.length() - 7) + " " + sb.toString() + "</html>";
+        ePosLabel.setText(ePosText);
+
+        int[] err = rs.findErrors(synd, ePos);
+        System.out.print("err = ");
+        rs.printArray(err);
+
+        sb.delete(0, sb.length());
+        for (int i = 0; i < err.length; i++) {
+            sb.append("%02X ".formatted(err[i]));
+        }
+
+        String errText = eMagEmpty.substring(0, eMagEmpty.length() - 7) + " " + sb.toString() + "</html>";
+        eMagLabel.setText(errText);
+
+        sb.delete(0, sb.length());
+        for (int i = 0; i < msgOut2.length; i++) {
+            sb.append("%02X ".formatted(msgOut2[i]));
+        }
+
+        String text = msgEmpty + " " + sb.toString();
+        msgLabel.setText(text);
+
+        // if (ePos.length == 0) {
+        // sb.delete(0, sb.length());
+        // for (int i = 0; i < msgOut2.length; i++) {
+        // sb.append("%02X ".formatted(msgOut2[i]));
+        // }
+
+        // String corrText = msgCorrEmpty.substring(0, msgCorrEmpty.length() - 7) + " " + sb.toString() +
+        // "</html>";
+        // msgCorrLabel.setText(corrText);
+        // } else {
+        int[] corr = rs.correctErrata(msgOut2, err, ePos);
+        System.out.print("corr = ");
+        rs.printArray(corr);
+
+        sb.delete(0, sb.length());
+        for (int i = 0; i < corr.length; i++) {
+            sb.append("%02X ".formatted(corr[i]));
+        }
+
+        String corrText = msgCorrEmpty.substring(0, msgCorrEmpty.length() - 7) + " " + sb.toString() + "</html>";
+        msgCorrLabel.setText(corrText);
+        // }
+    }
+
+    private void setSyndromes() {
+        msgOut2 = new int[20];
+
+        for (int i = 0; i < 12; i++) {
+            msgOut2[i] = (int) messageSpinners[i].getValue();
+        }
+
+        for (int i = 0; i < 8; i++) {
+            msgOut2[i + 12] = (int) paritySpinners[i].getValue();;
+        }
+
+        System.out.print("msgToCalcSynd = ");
+        rs.printArray(msgOut2);
+        synd = rs.calcSyndromes(msgOut2, 8);
+        System.out.print("synd = ");
+        rs.printArray(synd);
+
+        syndLabel.setText("Syndromes = %02X %02X %02X %02X %02X %02X %02X %02X".formatted(
+                synd[0], synd[1], synd[2], synd[3], synd[4], synd[5], synd[6], synd[7]));
+    }
+
+
 }
