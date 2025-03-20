@@ -1,10 +1,12 @@
 package rs;
 
+
+
 // https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders
 
 public class RS5 {
-  private int[] exp = new int[512];
-  private int[] log = new int[256];
+  public int[] exp = new int[512];
+  public int[] log = new int[256];
 
   public RS5() {
     lookUpTable();
@@ -49,10 +51,9 @@ public class RS5 {
     int[] ePos = findErrorPositions(eLoc2, msgOut.length);
     System.out.println("in main ePos=");
     printArray(ePos);
-    int[] err = findErrors(synd, ePos);
-    System.out.println("in main err=");
-    printArray(err);
-
+    int[] errVals = findErrorValues(synd, ePos);
+    System.out.println("in main errVals=");
+    printArray(errVals);
     /*
      * for(int i=0;i<256;i++) { for(int j=0;j<256;j++) { System.out.printf("%X ",add(i,j)); }
      * System.out.println(); }
@@ -108,7 +109,7 @@ public class RS5 {
     System.out.println();
   }
 
-  private void lookUpTable() {
+  public void lookUpTable() {
     int j = 1;
     for (int i = 0; i < 255; i++) {
       exp[i] = j;
@@ -120,15 +121,15 @@ public class RS5 {
     }
   }
 
-  private int add(int a, int b) {
+  public int add(int a, int b) {
     return a ^ b;
   }
 
-  private int sub(int a, int b) {
+  public int sub(int a, int b) {
     return a ^ b;
   }
 
-  private int mult2(int a, int b) {
+  public int mult2(int a, int b) {
     int c = 0;
     int i = 0;
     while (b >> i > 0) {
@@ -143,26 +144,26 @@ public class RS5 {
     return c;
   }
 
-  private int mult(int a, int b) {
+  public int mult(int a, int b) {
     if (a == 0 || b == 0) return 0;
     return exp[log[a] + log[b]];
   }
 
-  private int div(int a, int b) {
+  public int div(int a, int b) {
     if (b == 0) System.out.println("div by 0");
     if (a == 0) return 0;
     return exp[(log[a] + 255 - log[b]) % 255];
   }
 
-  private int pow(int a, int b) {
+  public int pow(int a, int b) {
     return exp[(log[a] * b + 255) % 255];
   }
 
-  private int inverse(int a) {
+  public int inverse(int a) {
     return exp[(255 - log[a]) % 255];
   }
 
-  private int[] polyScale(int[] a, int b) {
+  public int[] polyScale(int[] a, int b) {
     int[] c = new int[a.length];
     for (int i = 0; i < a.length; i++) {
       c[i] = mult(a[i], b);
@@ -170,7 +171,7 @@ public class RS5 {
     return c;
   }
 
-  private int[] polyAdd(int[] a, int[] b) {
+  public int[] polyAdd(int[] a, int[] b) {
     int s = Math.max(a.length, b.length);
     int s1 = s - a.length;
     int s2 = s - b.length;
@@ -182,7 +183,7 @@ public class RS5 {
     return c;
   }
 
-  private int[] polyMult(int[] a, int[] b) {
+  public int[] polyMult(int[] a, int[] b) {
     int[] c = new int[a.length + b.length - 1];
     for (int i = 0; i < b.length; i++) {
       for (int j = 0; j < a.length; j++) {
@@ -192,7 +193,7 @@ public class RS5 {
     return c;
   }
 
-  private int polyEval(int[] a, int b) {
+  public int polyEval(int[] a, int b) {
     int c = a[0];
     for (int i = 1; i < a.length; i++) {
       c = mult(c, b) ^ a[i];
@@ -200,7 +201,7 @@ public class RS5 {
     return c;
   }
 
-  private int[] generator(int n) {
+  public int[] generator(int n) {
     int[] c = {1};
     for (int i = 0; i < n; i++) {
       int[] d = {1, pow(2, i)};
@@ -209,7 +210,7 @@ public class RS5 {
     return c;
   }
 
-  private int[][] polyDiv(int[] a, int[] b) {
+  public int[][] polyDiv(int[] a, int[] b) {
     int[][] c = new int[2][];
     int[] d = new int[a.length];
     int[] q = new int[a.length - b.length + 1];
@@ -249,7 +250,7 @@ public class RS5 {
     return synd;
   }
 
-  private int[] findErrataLocator(int[] ePos) {
+  public int[] findErrataLocator(int[] ePos) {
     int[] eLoc = {1};
     for (int i = 0; i < ePos.length; i++) {
       int[] ia1 = {pow(2, ePos[i]), 0};
@@ -259,7 +260,7 @@ public class RS5 {
     return eLoc;
   }
 
-  private int[] findErrorEvaluator(int[] synd, int[] eLoc, int nsym) {
+  public int[] findErrorEvaluator(int[] synd, int[] eLoc, int nsym) {
     int[] ia = new int[nsym + 2];
     ia[0] = 1;
     int[] ia2 = polyMult(synd, eLoc);
@@ -381,7 +382,7 @@ public class RS5 {
     return eLoc;
   }
 
-  private int[] findErrors(int[] eLoc, int msgLen) {
+  public int[] findErrors(int[] eLoc, int msgLen) {
     int[] eLoc2 = new int[eLoc.length];
     for (int j = 0; j < eLoc.length; j++)
       eLoc2[eLoc.length - 1 - j] = eLoc[j];
@@ -412,7 +413,7 @@ public class RS5 {
     return ePos;
   }
 
-  public int[] findErrors(int[] synd, int[] ePos) {
+  public int[] findErrorValues(int[] synd, int[] ePos) {
     int[][] mat = new int[ePos.length][ePos.length + 1];
     for (int i = 0; i < ePos.length; i++) {
       for (int j = 0; j < ePos.length; j++) {
@@ -431,7 +432,7 @@ public class RS5 {
     return err;
   }
 
-  private void rowReduce(int[][] matrix) {
+  public void rowReduce(int[][] matrix) {
     for (int i = 0; i < matrix.length; i++)
     // for(int i=0;i<1;i++)
     {
@@ -456,7 +457,7 @@ public class RS5 {
     }
   }
 
-  private void swapRows(int i, int j, int[][] matrix) {
+  public void swapRows(int i, int j, int[][] matrix) {
     for (int k = 0; k < matrix[0].length; k++) {
       int temp = matrix[i][k];
       matrix[i][k] = matrix[j][k];
@@ -464,7 +465,7 @@ public class RS5 {
     }
   }
 
-  private void subRow(int i, int j, int[][] matrix) {
+  public void subRow(int i, int j, int[][] matrix) {
     // System.out.println("i="+i);
     // System.out.println("j="+j);
     int c = matrix[j][i];
@@ -475,7 +476,7 @@ public class RS5 {
     }
   }
 
-  private void printMatrix(int[][] matrix) {
+  public void printMatrix(int[][] matrix) {
     System.out.println("-----------------------");
     for (int i = 0; i < matrix.length; i++) {
       for (int j = 0; j < matrix[0].length; j++) {

@@ -71,6 +71,11 @@ public class HexSpinner extends JSpinner {
     });
   }
 
+  public void resetColor() {
+    JFormattedTextField textField = getEditorTextField();
+    textField.setBackground(initColor);
+  }
+
   public void setInitialColor(Color color) {
     JFormattedTextField textField = getEditorTextField();
     initColor = color;

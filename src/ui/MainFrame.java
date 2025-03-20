@@ -2,7 +2,7 @@ package ui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import rs.RS5;
+import rs.RS6;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
@@ -16,18 +16,18 @@ public class MainFrame extends JFrame {
     private JLabel syndLabel;
     private JLabel exLabel;
     private JLabel ePosLabel;
-    private JLabel eMagLabel;
-    private JLabel msgCorrLabel;
+    private JLabel errLabel;
+    private JLabel corrLabel;
     private final String pxEmpty = "<html>P(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String gxEmpty = "<html>P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String mxEmpty = "<html>M(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String syndEmpty = "Syndromes =";
     private final String exEmpty = "<html>e(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&thinsp;=</html>";
     private final String ePosEmpty = "<html>ePos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
-    private final String eMagEmpty = "<html>eMag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String errEmpty = "<html>err&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String msgEmpty = "Message     =";
-    private final String msgCorrEmpty = "<html>Corrected&nbsp;&nbsp;&nbsp;=</html>";
-    private RS5 rs;
+    private final String corrEmpty = "<html>Corrected&nbsp;&nbsp;&nbsp;=</html>";
+    private RS6 rs;
     private int[] msgIn;
     private int[] msgOut1;
     private int[] msgOut2;
@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         super("Reed-Solomon Code");
 
-        rs = new RS5();
+        rs = new RS6();
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -138,9 +138,9 @@ public class MainFrame extends JFrame {
         syndLabel = new JLabel(syndEmpty);
         exLabel = new JLabel(exEmpty);
         ePosLabel = new JLabel(ePosEmpty);
-        eMagLabel = new JLabel(eMagEmpty);
+        errLabel = new JLabel(errEmpty);
         msgLabel = new JLabel(msgEmpty);
-        msgCorrLabel = new JLabel(msgCorrEmpty);
+        corrLabel = new JLabel(corrEmpty);
 
         pxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         gxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
@@ -148,9 +148,9 @@ public class MainFrame extends JFrame {
         syndLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         exLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         ePosLabel.setVerticalAlignment(SwingConstants.BOTTOM);
-        eMagLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        errLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         msgLabel.setVerticalAlignment(SwingConstants.BOTTOM);
-        msgCorrLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        corrLabel.setVerticalAlignment(SwingConstants.BOTTOM);
 
         Dimension labelSize = new Dimension(1000, 28);
 
@@ -178,17 +178,17 @@ public class MainFrame extends JFrame {
         ePosLabel.setMaximumSize(labelSize);
         ePosLabel.setMinimumSize(labelSize);
 
-        eMagLabel.setPreferredSize(labelSize);
-        eMagLabel.setMaximumSize(labelSize);
-        eMagLabel.setMinimumSize(labelSize);
+        errLabel.setPreferredSize(labelSize);
+        errLabel.setMaximumSize(labelSize);
+        errLabel.setMinimumSize(labelSize);
 
         msgLabel.setMinimumSize(labelSize);
         msgLabel.setPreferredSize(labelSize);
         msgLabel.setMaximumSize(labelSize);
 
-        msgCorrLabel.setPreferredSize(labelSize);
-        msgCorrLabel.setMaximumSize(labelSize);
-        msgCorrLabel.setMinimumSize(labelSize);
+        corrLabel.setPreferredSize(labelSize);
+        corrLabel.setMaximumSize(labelSize);
+        corrLabel.setMinimumSize(labelSize);
 
         bottomPanel.add(pxLabel);
         bottomPanel.add(gxLabel);
@@ -196,9 +196,9 @@ public class MainFrame extends JFrame {
         bottomPanel.add(syndLabel);
         bottomPanel.add(exLabel);
         bottomPanel.add(ePosLabel);
-        bottomPanel.add(eMagLabel);
+        bottomPanel.add(errLabel);
         bottomPanel.add(msgLabel);
-        bottomPanel.add(msgCorrLabel);
+        bottomPanel.add(corrLabel);
 
         mainPanel.add(Box.createRigidArea(new Dimension(1100, 0)));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -230,7 +230,7 @@ public class MainFrame extends JFrame {
         rs.printArray(msgIn);
 
         msgOut1 = rs.encodeMsg(msgIn, 8);
-        System.out.print("msgOut = ");
+        System.out.print("msgOut1 = ");
         rs.printArray(msgOut1);
 
         pxLabel.setText("""
@@ -377,9 +377,15 @@ public class MainFrame extends JFrame {
     private void resetDecodingLabels() {
         exLabel.setText(exEmpty);
         ePosLabel.setText(ePosEmpty);
-        eMagLabel.setText(eMagEmpty);
+        errLabel.setText(errEmpty);
         msgLabel.setText(msgEmpty);
-        msgCorrLabel.setText(msgCorrEmpty);
+        corrLabel.setText(corrEmpty);
+        for (HexSpinner sp : messageSpinners) {
+            sp.resetColor();
+        }
+        for (HexSpinner sp : paritySpinners) {
+            sp.resetColor();
+        }
     }
 
     private void handleDecodePressed() {
@@ -387,11 +393,16 @@ public class MainFrame extends JFrame {
 
         int[] eLoc = rs.findErrorLocator(synd, 8);
 
-        // if (eLoc.length > 5) {
-        // JOptionPane.showMessageDialog(this, "Too many errors to correct.", "Too Many Errors",
-        // JOptionPane.WARNING_MESSAGE);
-        // return;
-        // }
+        int errCount = 0;
+        for (int i = 0; i < msgOut2.length; i++) {
+            if (msgOut1[i] != msgOut2[i])
+                errCount++;
+        }
+        if (errCount > 4) {
+            JOptionPane.showMessageDialog(this, "Too many errors to correct.", "Too Many Errors",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         System.out.print("eLoc = ");
         rs.printArray(eLoc);
@@ -427,7 +438,7 @@ public class MainFrame extends JFrame {
         String ePosText = ePosEmpty.substring(0, ePosEmpty.length() - 7) + " " + sb.toString() + "</html>";
         ePosLabel.setText(ePosText);
 
-        int[] err = rs.findErrors(synd, ePos);
+        int[] err = rs.findErrorValues(synd, ePos);
         System.out.print("err = ");
         rs.printArray(err);
 
@@ -436,8 +447,8 @@ public class MainFrame extends JFrame {
             sb.append("%02X ".formatted(err[i]));
         }
 
-        String errText = eMagEmpty.substring(0, eMagEmpty.length() - 7) + " " + sb.toString() + "</html>";
-        eMagLabel.setText(errText);
+        String errText = errEmpty.substring(0, errEmpty.length() - 7) + " " + sb.toString() + "</html>";
+        errLabel.setText(errText);
 
         sb.delete(0, sb.length());
         for (int i = 0; i < msgOut2.length; i++) {
@@ -447,17 +458,11 @@ public class MainFrame extends JFrame {
         String text = msgEmpty + " " + sb.toString();
         msgLabel.setText(text);
 
-        // if (ePos.length == 0) {
-        // sb.delete(0, sb.length());
-        // for (int i = 0; i < msgOut2.length; i++) {
-        // sb.append("%02X ".formatted(msgOut2[i]));
-        // }
+        int[] corr = msgOut1;
+        if (ePos.length > 0) {
+            corr = rs.correctMsg(msgOut2, ePos, err);
+        }
 
-        // String corrText = msgCorrEmpty.substring(0, msgCorrEmpty.length() - 7) + " " + sb.toString() +
-        // "</html>";
-        // msgCorrLabel.setText(corrText);
-        // } else {
-        int[] corr = rs.correctErrata(msgOut2, err, ePos);
         System.out.print("corr = ");
         rs.printArray(corr);
 
@@ -466,9 +471,8 @@ public class MainFrame extends JFrame {
             sb.append("%02X ".formatted(corr[i]));
         }
 
-        String corrText = msgCorrEmpty.substring(0, msgCorrEmpty.length() - 7) + " " + sb.toString() + "</html>";
-        msgCorrLabel.setText(corrText);
-        // }
+        String corrText = corrEmpty.substring(0, corrEmpty.length() - 7) + " " + sb.toString() + "</html>";
+        corrLabel.setText(corrText);
     }
 
     private void setSyndromes() {
@@ -482,7 +486,7 @@ public class MainFrame extends JFrame {
             msgOut2[i + 12] = (int) paritySpinners[i].getValue();;
         }
 
-        System.out.print("msgToCalcSynd = ");
+        System.out.print("msgOut2 = ");
         rs.printArray(msgOut2);
         synd = rs.calcSyndromes(msgOut2, 8);
         System.out.print("synd = ");
