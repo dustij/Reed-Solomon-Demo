@@ -11,49 +11,49 @@ public class RS5 {
   public RS5() {
     lookUpTable();
 
-    int[] msgIn = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f,
-        0x72, 0x6c, 0x64, 0x21};
-    // int[] msgIn={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    int numPad = 8;
-    System.out.print("msgIn=");
-    printArray(msgIn);
-    int[] gen = generator(numPad);
-    System.out.println("testing generator");
-    System.out.print("gen=");
-    printArray(gen);
-    for (int i = 0; i < numPad; i++) {
-      System.out.printf("i=%d %02X\n", i, polyEval(gen, pow(2, i)));
-    }
-    int[] msgOut = encodeMsg(msgIn, numPad);
-    System.out.print("msgOut=");
-    printArray(msgOut);
-    int[] synd = calcSyndromes(msgOut, numPad);
-    System.out.print("synd=");
-    printArray(synd);
-    System.out.println("creating errors");
-    msgOut[2] = add(msgOut[2], 5);
-    msgOut[4] = add(msgOut[4], 6);
-    msgOut[6] = add(msgOut[6], 4);
-    // msgOut[8]=add(msgOut[8],3);
-    msgOut[19] = add(msgOut[19], 3);
-    System.out.print("msgOut=");
-    printArray(msgOut);
-    synd = calcSyndromes(msgOut, numPad);
-    System.out.print("synd=");
-    printArray(synd);
-    System.out.println("testing findErrorLocator");
-    int[] eLoc = findErrorLocator(synd, numPad);
-    System.out.println("in main eLoc=");
-    printArray(eLoc);
-    int[] eLoc2 = new int[eLoc.length];
-    for (int j = 0; j < eLoc.length; j++)
-      eLoc2[eLoc.length - 1 - j] = eLoc[j];
-    int[] ePos = findErrorPositions(eLoc2, msgOut.length);
-    System.out.println("in main ePos=");
-    printArray(ePos);
-    int[] errVals = findErrorValues(synd, ePos);
-    System.out.println("in main errVals=");
-    printArray(errVals);
+    // int[] msgIn = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f,
+    // 0x72, 0x6c, 0x64, 0x21};
+    // // int[] msgIn={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    // int numPad = 8;
+    // System.out.print("msgIn=");
+    // printArray(msgIn);
+    // int[] gen = generator(numPad);
+    // System.out.println("testing generator");
+    // System.out.print("gen=");
+    // printArray(gen);
+    // for (int i = 0; i < numPad; i++) {
+    // System.out.printf("i=%d %02X\n", i, polyEval(gen, pow(2, i)));
+    // }
+    // int[] msgOut = encodeMsg(msgIn, numPad);
+    // System.out.print("msgOut=");
+    // printArray(msgOut);
+    // int[] synd = calcSyndromes(msgOut, numPad);
+    // System.out.print("synd=");
+    // printArray(synd);
+    // System.out.println("creating errors");
+    // msgOut[2] = add(msgOut[2], 5);
+    // msgOut[4] = add(msgOut[4], 6);
+    // msgOut[6] = add(msgOut[6], 4);
+    // // msgOut[8]=add(msgOut[8],3);
+    // msgOut[19] = add(msgOut[19], 3);
+    // System.out.print("msgOut=");
+    // printArray(msgOut);
+    // synd = calcSyndromes(msgOut, numPad);
+    // System.out.print("synd=");
+    // printArray(synd);
+    // System.out.println("testing findErrorLocator");
+    // int[] eLoc = findErrorLocator(synd, numPad);
+    // System.out.println("in main eLoc=");
+    // printArray(eLoc);
+    // int[] eLoc2 = new int[eLoc.length];
+    // for (int j = 0; j < eLoc.length; j++)
+    // eLoc2[eLoc.length - 1 - j] = eLoc[j];
+    // int[] ePos = findErrorPositions(eLoc2, msgOut.length);
+    // System.out.println("in main ePos=");
+    // printArray(ePos);
+    // int[] errVals = findErrorValues(synd, ePos);
+    // System.out.println("in main errVals=");
+    // printArray(errVals);
     /*
      * for(int i=0;i<256;i++) { for(int j=0;j<256;j++) { System.out.printf("%X ",add(i,j)); }
      * System.out.println(); }
