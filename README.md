@@ -4,6 +4,8 @@ A visual and interactive Java application to explore the fundamentals of Reed-So
 
 ---
 
+![Screenshot](screenshot/Screenshot.png)
+
 ## 📘 Abstract
 
 Error correction is essential for ensuring reliable digital communication and data storage. Reed-Solomon (RS) codes are a widely used error correction technique found in QR codes, CDs/DVDs, Blu-ray discs, and deep-space transmissions, where data corruption from noise or physical damage can render information unreadable.
