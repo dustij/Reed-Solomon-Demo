@@ -449,7 +449,7 @@ public class MainFrame extends JFrame {
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < eLoc.length; i++) {
-            sb.append("%02X".formatted(eLoc[i]));
+            sb.append("%02X".formatted(eLoc[eLoc.length - i - 1]));
             if (i < eLoc.length - 1) {
                 sb.append("x");
                 if (i < eLoc.length - 2) {
