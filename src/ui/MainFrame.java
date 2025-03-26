@@ -11,6 +11,7 @@ public class MainFrame extends JFrame {
     private JTextField messageTextField;
     private JLabel pxLabel;
     private JLabel gxLabel;
+    private JLabel pxgxLabel;
     private JLabel mxLabel;
     private JLabel msgLabel;
     private JLabel syndLabel;
@@ -19,7 +20,8 @@ public class MainFrame extends JFrame {
     private JLabel errLabel;
     private JLabel corrLabel;
     private final String pxEmpty = "<html>P(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
-    private final String gxEmpty = "<html>P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String gxEmpty = "<html>G(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
+    private final String pxgxEmpty = "<html>P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String mxEmpty = "<html>M(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String syndEmpty = "Syndromes =";
     private final String exEmpty = "<html>e(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&thinsp;=</html>";
@@ -32,6 +34,7 @@ public class MainFrame extends JFrame {
     private int[] msgOut1;
     private int[] msgOut2;
     private int[] synd;
+    private int[] rem;
 
     public MainFrame() {
         super("Reed-Solomon Code");
@@ -134,6 +137,7 @@ public class MainFrame extends JFrame {
 
         pxLabel = new JLabel(pxEmpty);
         gxLabel = new JLabel(gxEmpty);
+        pxgxLabel = new JLabel(pxgxEmpty);
         mxLabel = new JLabel(mxEmpty);
         syndLabel = new JLabel(syndEmpty);
         exLabel = new JLabel(exEmpty);
@@ -144,6 +148,7 @@ public class MainFrame extends JFrame {
 
         pxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         gxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+        pxgxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         mxLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         syndLabel.setVerticalAlignment(SwingConstants.BOTTOM);
         exLabel.setVerticalAlignment(SwingConstants.BOTTOM);
@@ -161,6 +166,10 @@ public class MainFrame extends JFrame {
         gxLabel.setPreferredSize(labelSize);
         gxLabel.setMaximumSize(labelSize);
         gxLabel.setMinimumSize(labelSize);
+
+        pxgxLabel.setPreferredSize(labelSize);
+        pxgxLabel.setMaximumSize(labelSize);
+        pxgxLabel.setMinimumSize(labelSize);
 
         mxLabel.setPreferredSize(labelSize);
         mxLabel.setMaximumSize(labelSize);
@@ -192,6 +201,7 @@ public class MainFrame extends JFrame {
 
         bottomPanel.add(pxLabel);
         bottomPanel.add(gxLabel);
+        bottomPanel.add(pxgxLabel);
         bottomPanel.add(mxLabel);
         bottomPanel.add(syndLabel);
         bottomPanel.add(exLabel);
@@ -226,8 +236,13 @@ public class MainFrame extends JFrame {
         // long.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
         // return;
         // }
+
         System.out.print("msgIn = ");
         rs.printArray(msgIn);
+
+        rem = rs.generator(8);
+        System.out.print("rem = ");
+        rs.printArray(rem);
 
         msgOut1 = rs.encodeMsg(msgIn, 8);
         System.out.print("msgOut1 = ");
@@ -271,6 +286,29 @@ public class MainFrame extends JFrame {
                 msgOut1[11]));
 
         gxLabel.setText("""
+                <html>
+                G(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+                %02Xx<sup>8</sup>+
+                %02Xx<sup>7</sup>+
+                %02Xx<sup>6</sup>+
+                %02Xx<sup>5</sup>+
+                %02Xx<sup>4</sup>+
+                %02Xx<sup>3</sup>+
+                %02Xx<sup>2</sup>+
+                %02Xx+
+                %02X
+                </html>""".formatted(
+                rem[0],
+                rem[1],
+                rem[2],
+                rem[3],
+                rem[4],
+                rem[5],
+                rem[6],
+                rem[7],
+                rem[8]));
+
+        pxgxLabel.setText("""
                 <html>
                 P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=
                 %Xx<sup>7</sup>+
@@ -357,6 +395,7 @@ public class MainFrame extends JFrame {
         msgOut1 = new int[0];
         msgOut2 = new int[0];
         synd = new int[0];
+        rem = new int[0];
 
         for (HexSpinner spinner : messageSpinners) {
             spinner.setInitialValue(0);
@@ -368,6 +407,7 @@ public class MainFrame extends JFrame {
 
         pxLabel.setText(pxEmpty);
         gxLabel.setText(gxEmpty);
+        pxgxLabel.setText(pxgxEmpty);
         mxLabel.setText(mxEmpty);
         syndLabel.setText(syndEmpty);
 
