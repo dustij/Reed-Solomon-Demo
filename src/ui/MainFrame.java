@@ -263,14 +263,14 @@ public class MainFrame extends JFrame {
                 %02Xx<sup>A</sup>+
                 %02Xx<sup>9</sup>+
                 %02Xx<sup>8</sup>+
-                0x<sup>7</sup>+
-                0x<sup>6</sup>+
-                0x<sup>5</sup>+
-                0x<sup>4</sup>+
-                0x<sup>3</sup>+
-                0x<sup>2</sup>+
-                0x+
-                0
+                00x<sup>7</sup>+
+                00x<sup>6</sup>+
+                00x<sup>5</sup>+
+                00x<sup>4</sup>+
+                00x<sup>3</sup>+
+                00x<sup>2</sup>+
+                00x+
+                00
                 </html>""".formatted(
                 msgOut1[0],
                 msgOut1[1],
@@ -412,6 +412,7 @@ public class MainFrame extends JFrame {
         syndLabel.setText(syndEmpty);
 
         resetDecodingLabels();
+        messageTextField.requestFocusInWindow();
     }
 
     private void resetDecodingLabels() {
