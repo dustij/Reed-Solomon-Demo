@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
     private final String pxgxEmpty = "<html>P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String mxEmpty = "<html>M(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String syndEmpty = "Syndromes =";
-    private final String exEmpty = "<html>e(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&thinsp;=</html>";
+    private final String exEmpty = "<html>E(x)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&thinsp;=</html>";
     private final String ePosEmpty = "<html>ePos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String errEmpty = "<html>err&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</html>";
     private final String msgEmpty = "Message     =";
