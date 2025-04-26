@@ -217,6 +217,11 @@ public class MainFrame extends JFrame {
         setMinimumSize(getPreferredSize());
         setLocationRelativeTo(null);
         setVisible(true);
+
+        // clear terminal
+        for (int i = 0; i < 200; i++) {
+            System.out.println();
+        }
     }
 
     private void handleEncodePressed() {
@@ -237,16 +242,16 @@ public class MainFrame extends JFrame {
         // return;
         // }
 
-        System.out.print("msgIn = ");
-        rs.printArray(msgIn);
+        // System.out.print("msgIn = ");
+        // rs.printArray(msgIn);
 
         rem = rs.generator(8);
-        System.out.print("rem = ");
-        rs.printArray(rem);
+        // System.out.print("rem = ");
+        // rs.printArray(rem);
 
         msgOut1 = rs.encodeMsg(msgIn, 8);
-        System.out.print("msgOut1 = ");
-        rs.printArray(msgOut1);
+        // System.out.print("msgOut1 = ");
+        // rs.printArray(msgOut1);
 
         pxLabel.setText("""
                 <html>
@@ -311,14 +316,14 @@ public class MainFrame extends JFrame {
         pxgxLabel.setText("""
                 <html>
                 P(x)/G(x)&nbsp;&nbsp;&nbsp;&nbsp;=
-                %Xx<sup>7</sup>+
-                %Xx<sup>6</sup>+
-                %Xx<sup>5</sup>+
-                %Xx<sup>4</sup>+
-                %Xx<sup>3</sup>+
-                %Xx<sup>2</sup>+
-                %Xx+
-                %X
+                %02Xx<sup>7</sup>+
+                %02Xx<sup>6</sup>+
+                %02Xx<sup>5</sup>+
+                %02Xx<sup>4</sup>+
+                %02Xx<sup>3</sup>+
+                %02Xx<sup>2</sup>+
+                %02Xx+
+                %02X
                 </html>
                 """.formatted(
                 msgOut1[12],
@@ -430,6 +435,7 @@ public class MainFrame extends JFrame {
     }
 
     private void handleDecodePressed() {
+        if (msgOut1 == null) { return; }
         setSyndromes();
 
         int[] eLoc = rs.findErrorLocator(synd, 8);
@@ -445,8 +451,8 @@ public class MainFrame extends JFrame {
             return;
         }
 
-        System.out.print("eLoc = ");
-        rs.printArray(eLoc);
+        // System.out.print("eLoc = ");
+        // rs.printArray(eLoc);
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < eLoc.length; i++) {
@@ -468,8 +474,8 @@ public class MainFrame extends JFrame {
             eLoc2[eLoc.length - 1 - j] = eLoc[j];
 
         int[] ePos = rs.findErrorPositions(eLoc2, 20);
-        System.out.print("ePos = ");
-        rs.printArray(ePos);
+        // System.out.print("ePos = ");
+        // rs.printArray(ePos);
 
         sb.delete(0, sb.length());
         for (int i = 0; i < ePos.length; i++) {
@@ -480,8 +486,8 @@ public class MainFrame extends JFrame {
         ePosLabel.setText(ePosText);
 
         int[] err = rs.findErrorValues(synd, ePos);
-        System.out.print("err = ");
-        rs.printArray(err);
+        // System.out.print("err = ");
+        // rs.printArray(err);
 
         sb.delete(0, sb.length());
         for (int i = 0; i < err.length; i++) {
@@ -504,8 +510,8 @@ public class MainFrame extends JFrame {
             corr = rs.correctMsg(msgOut2, ePos, err);
         }
 
-        System.out.print("corr = ");
-        rs.printArray(corr);
+        // System.out.print("corr = ");
+        // rs.printArray(corr);
 
         sb.delete(0, sb.length());
         for (int i = 0; i < corr.length; i++) {
@@ -527,11 +533,11 @@ public class MainFrame extends JFrame {
             msgOut2[i + 12] = (int) paritySpinners[i].getValue();;
         }
 
-        System.out.print("msgOut2 = ");
-        rs.printArray(msgOut2);
+        // System.out.print("msgOut2 = ");
+        // rs.printArray(msgOut2);
         synd = rs.calcSyndromes(msgOut2, 8);
-        System.out.print("synd = ");
-        rs.printArray(synd);
+        // System.out.print("synd = ");
+        // rs.printArray(synd);
 
         syndLabel.setText("Syndromes = %02X %02X %02X %02X %02X %02X %02X %02X".formatted(
                 synd[0], synd[1], synd[2], synd[3], synd[4], synd[5], synd[6], synd[7]));

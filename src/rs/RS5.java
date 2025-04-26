@@ -104,9 +104,10 @@ public class RS5 {
   }
 
   public void printArray(int[] a) {
-    for (int i = 0; i < a.length; i++)
-      System.out.printf("%02X ", a[i]);
-    System.out.println();
+    for (int i = 0; i < a.length; i++) {
+      // System.out.printf("%02X ", a[i]);
+    }
+    // System.out.println();
   }
 
   public void lookUpTable() {
@@ -150,7 +151,7 @@ public class RS5 {
   }
 
   public int div(int a, int b) {
-    if (b == 0) System.out.println("div by 0");
+    // if (b == 0) System.out.println("div by 0");
     if (a == 0) return 0;
     return exp[(log[a] + 255 - log[b]) % 255];
   }
@@ -305,8 +306,9 @@ public class RS5 {
         }
         int y = polyEval(eEval, xi);
         y = mult(x[i], y);
-        if (errLocPrime == 0)
-          System.out.println("could not find error magnifier");
+        if (errLocPrime == 0) {
+          // System.out.println("could not find error magnifier");
+        }
         int mag = div(y, errLocPrime);
         e[ePos[i]] = mag;
       }
@@ -378,7 +380,7 @@ public class RS5 {
     // System.out.print("e oldLoc=");
     // printArray(oldLoc);
     int errs = eLoc.length - 1;
-    if (errs * 2 > nsym) System.out.println("too many errors to correct");
+    // if (errs * 2 > nsym) System.out.println("too many errors to correct");
     return eLoc;
   }
 
@@ -398,7 +400,7 @@ public class RS5 {
         ePos[ePos.length - 1] = msgLen - 1 - i;
       }
     }
-    if (ePos.length != errs) System.out.println("too many or few errors");
+    // if (ePos.length != errs) System.out.println("too many or few errors");
     return ePos;
   }
 
@@ -408,7 +410,7 @@ public class RS5 {
     for (int i = 0; i < msgSize; i++) {
       int j = polyEval(eLoc, pow(2, i));
       if (j == 0) ePos[index++] = i;
-      System.out.printf("i=%d %02X\n", i, j);
+      // System.out.printf("i=%d %02X\n", i, j);
     }
     return ePos;
   }
@@ -477,12 +479,12 @@ public class RS5 {
   }
 
   public void printMatrix(int[][] matrix) {
-    System.out.println("-----------------------");
+    // System.out.println("-----------------------");
     for (int i = 0; i < matrix.length; i++) {
       for (int j = 0; j < matrix[0].length; j++) {
-        System.out.printf("%02X ", matrix[i][j]);
+        // System.out.printf("%02X ", matrix[i][j]);
       }
-      System.out.println();
+      // System.out.println();
     }
   }
 

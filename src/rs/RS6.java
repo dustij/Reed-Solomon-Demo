@@ -31,17 +31,17 @@ public class RS6 extends RS5 {
         // expToIdx.put(Integer.parseInt("12", 16), 18);
         // expToIdx.put(Integer.parseInt("12", 16), 19);
 
-        System.out.println(Arrays.toString(msg));
-        System.out.println(Arrays.toString(ePos));
-        System.out.println(Arrays.toString(err));
+        // System.out.println(Arrays.toString(msg));
+        // System.out.println(Arrays.toString(ePos));
+        // System.out.println(Arrays.toString(err));
 
         for (int i = 0; i < ePos.length; i++) {
             int idx = 19 - ePos[i];
-            System.out.println("idx = " + idx);
-            System.out.println("msg[idx] = " + msg[idx]);
+            // System.out.println("idx = " + idx);
+            // System.out.println("msg[idx] = " + msg[idx]);
             // msg[19 - i] ^= err[i];
             msg[idx] = this.sub(msg[idx], err[i]);
-            System.out.println("msg'[idx] = " + msg[idx]);
+            // System.out.println("msg'[idx] = " + msg[idx]);
         }
         return msg;
     }
